@@ -2,17 +2,19 @@ from coro import suspend, start
 from metaevents import emit, on_event, detach
 from nativesockets import AF_INET, SOCK_DGRAM, IPPROTO_UDP
 from nativesockets import setBlocking, select
-from net import newSocket, recvFrom, setSockOpt, getFd, bindAddr
+from net import newSocket, recvFrom, setSockOpt, getFd,
+  bindAddr
 from net import close, sendTo
 from net import Socket, Port
 from net import OptReuseAddr, OptReusePort, OptBroadcast
 from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd, RawMessageToSend
 from events.systemsignals import ExitApplication
-from messages.control import size, serialize, deserialize
-from messages.control import ControlMessage
-from messages.proto import MAX_DATA_SIZE, PROTO_VERSION
-from messages.proto import PROGRAM_SIGNATURE
+from interfaces.messages.control import size, serialize,
+  deserialize
+from interfaces.messages.control import ControlMessage
+from interfaces.messages.proto import MAX_DATA_SIZE,
+  PROTO_VERSION, PROGRAM_SIGNATURE
 
 
 type
@@ -85,7 +87,7 @@ proc listen*(self: ControlServer) =
         let received = self.socket.recvFrom(buffer, ControlMessage.size(), address, port)
         if received > 0:
           self.dispatcher(address, buffer)
-      suspend(0.5)
+      suspend(1)
     debugEcho "UDP listener is finished"
     self.socket.close()
   start(listener)

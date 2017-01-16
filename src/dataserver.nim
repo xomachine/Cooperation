@@ -1,6 +1,7 @@
-from messages.data import DataMessage
-from messages.data import serialize, deserialize
-from messages.proto import PROGRAM_SIGNATURE, PROTO_VERSION
+from interfaces.messages.data import DataMessage
+from interfaces.messages.data import serialize, deserialize
+from interfaces.messages.proto import PROGRAM_SIGNATURE,
+  PROTO_VERSION
 from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd
 from events.systemsignals import ExitApplication
@@ -79,7 +80,7 @@ proc listen*(self: DataServer) =
           self.handle_client(client)
         start(handle)
         client = newSocket(buffered = false)
-      suspend(0.5)
+      suspend(1)
     self.socket.close()
     debugEcho "TCP listener finished"
   start(listener)

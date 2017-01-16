@@ -1,5 +1,9 @@
 from nesm import serializable
 
+type
+  MessageKind* {.pure.} = enum
+    addtask = (1'i8, "AddTaskMessage")
+    
 serializable:
   type
     DataMessage* = object
