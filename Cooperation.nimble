@@ -8,4 +8,5 @@ srcDir = "src"
 requires "nim >= 0.14.2"
 requires "nesm"
 requires "metaevents"
+requires "jser"
 bin    = @["cooperation"]
