@@ -12,6 +12,7 @@ from events.netevent import RawMessageRecvd
 from metaevents import on_event, detach
 from modules.module import Module
 from modules.module import prepare, init
+from streams import newStringStream
 
 type
   ModulesHandler* = object
@@ -32,14 +33,12 @@ proc initModules*(ep: ref EventPipe,
       suspend(0.1)
     if e.id != MessageKind.addtask.int8:
       return false
-    var index = 0
-    let feeder = proc (count: Natural): seq[byte] =
-      result = e.data[index..index+count]
-      index += count
-    let message = AddTask.deserialize(feeder)
+    let stream = newStringStream(e.data)
+    let message = AddTask.deserialize(stream)
     let task = message.task
     if task.handler in mh.modules:
       let prepared = mh.modules[task.handler].prepare(task)
+      # Emit an event or directly add task to the queue
   ep[].on_event(addTaskHandler)
   mh.on_destroy = proc () =
     ep[].detach(addTaskHandler)

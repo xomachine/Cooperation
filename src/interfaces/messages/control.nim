@@ -9,4 +9,4 @@ serializable:
         signature*: array[0..3, char]
         version*: int32
         kind*: int8
-        data*: array[MAX_DATA_SIZE, byte]
+        data*: array[MAX_DATA_SIZE, char]

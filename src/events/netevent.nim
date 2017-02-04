@@ -2,9 +2,9 @@ type
   RawMessageRecvd* = object
     sender*: string
     id*: int8
-    data*: seq[byte]
+    data*: string
   
   RawMessageToSend* = object
     target*: string
     id*: int8
-    data*: seq[byte]
+    data*: string

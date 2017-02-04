@@ -29,7 +29,7 @@ proc messageSender(self: ControlServer, e: RawMessageToSend):bool =
   let message = ControlMessage(signature: PROGRAM_SIGNATURE,
     version: PROTO_VERSION,
     kind: e.id,
-    data: cast[array[MAX_DATA_SIZE, byte]](e.data))
+    data: cast[array[MAX_DATA_SIZE, char]](e.data))
   var msgdata = message.serialize()
   0 < self.socket.sendTo(e.target,
     Port(self.port),
@@ -70,7 +70,7 @@ proc dispatcher(self: ControlServer, address: string, data: string) =
   if msg.signature == PROGRAM_SIGNATURE and msg.version == PROTO_VERSION:
     let msg_event = RawMessageRecvd(sender: address,
       id: msg.kind,
-      data: @(msg.data))
+      data: cast[string](@(msg.data)))
     self.event_stream.emit(msg_event)
 
 proc listen*(self: ControlServer) =

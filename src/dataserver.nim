@@ -6,6 +6,7 @@ from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd
 from events.systemsignals import ExitApplication
 from metaevents import emit, detach, on_event
+from utils.socketstream import newSocketStream
 from net import newSocket, getFd, bindAddr, listen, accept, close
 from net import setSockOpt, getPeerAddr, recv
 from net import Socket, Port
@@ -43,17 +44,8 @@ proc newDataServer*(pipe: ref EventPipe, port: int32): DataServer =
   result.event_pipe[].on_event(stop_handler)
 
 proc handle_client(self: DataServer, client: Socket) =
-  proc receiver(c: Natural): seq[byte] =
-    result = newSeq[byte](c)
-    var received: Natural = 0
-    while received < c:
-      var sockseq = @[client.getFd()]
-      if sockseq.select(0) > 0:
-        let read = client.recv(result[received].addr, c - received)
-        if read > 0:
-          received += read
-      suspend(0.1)
-  let message = try: DataMessage.deserialize(receiver)
+  var socketStream = newSocketStream(client)
+  let message = try: DataMessage.deserialize(socketStream)
     except OSError: DataMessage()
   if message.signature != PROGRAM_SIGNATURE or
      message.version != PROTO_VERSION:
