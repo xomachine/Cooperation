@@ -1,4 +1,4 @@
-from oids import genOid
+from oids import genOid, Oid
 from nesm import serializable
 serializable:
   type
@@ -15,13 +15,12 @@ serializable:
       inputfile: string
       files: seq[string]
 
-proc `==`*(a: TaskId, b:TaskId): bool =
-  a.time == b.time and a.fuzz == b.fuzz and a.count == b.count
+
+proc `$`*(s: TaskId): string =
+  $(cast[Oid](s))
 
 proc newTaskId*(): TaskId =
-  var newoid = genOid()
-  assert(newoid.sizeof == result.sizeof)
-  copyMem(result.addr, newoid.addr, newoid.sizeof)
+  cast[TaskId](genOid())
 
 proc newTask*(cores: int8 = 0, memory: int32 = 0,
              handler: string = "", inputfile: string = "",
