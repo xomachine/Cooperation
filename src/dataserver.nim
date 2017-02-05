@@ -7,8 +7,8 @@ from events.netevent import RawMessageRecvd
 from events.system import ExitApplication
 from metaevents import emit, detach, on_event
 from utils.socketstream import newSocketStream
-from net import newSocket, getFd, bindAddr, listen, accept, close
-from net import setSockOpt, getPeerAddr, recv
+from net import newSocket, getFd, bindAddr, listen, close
+from net import setSockOpt, getPeerAddr, recv, send, accept
 from net import Socket, Port
 from net import OptReuseAddr, OptReusePort
 from nativesockets import setBlocking, select
@@ -48,9 +48,12 @@ proc handle_client(self: DataServer, client: Socket) =
      message.version != PROTO_VERSION:
     return
   let address = client.getPeerAddr()[0]
+  proc callback(data: string) =
+    client.send(data)
   let event = RawMessageRecvd(sender: address,
                               id: message.kind,
-                              data: message.data)
+                              data: message.data,
+                              answer: callback)
   self.event_pipe[].emit(event)
   client.close()
 
