@@ -1,5 +1,5 @@
 
-from interfaces.task import TaskId, `==`, Task, newTask
+from interfaces.task import TaskId, Task, newTask
 type
   QueueEmptyException = object of Exception
   NotInQueueException = object of Exception

@@ -45,7 +45,7 @@ proc init*(filepath: string): Module =
                        ", or returned no data")
   process.close()
 
-proc prepare*(self: var Module, task: Task): Task =
+proc prepare*(self: Module, task: Task): Task =
   ## Prepares *Task* before addition to queue via
   ## external module
   let serialized = $task.toJson()
@@ -59,6 +59,7 @@ proc prepare*(self: var Module, task: Task): Task =
     let jsondata = parseJson(output, "")
     result.fromJson(jsondata)
   else:
+    process.close()
     raise newException(ModuleFailed,
                        "Module process returned exitcode " &
                        $process.peekExitCode() &

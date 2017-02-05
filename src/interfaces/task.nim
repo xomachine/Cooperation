@@ -1,19 +1,19 @@
 from oids import genOid, Oid
 from nesm import serializable
 serializable:
-  type
-    TaskId* = tuple
+  static:
+    type TaskId* = tuple
       time: int32
       fuzz: int32
       count: int32
 
-    Task* = tuple
-      id: TaskId
-      cores: int8
-      memory: int32
-      handler: string
-      inputfile: string
-      files: seq[string]
+  type Task* = tuple
+    id: TaskId
+    cores: int8
+    memory: int32
+    handler: string
+    inputfile: string
+    files: seq[string]
 
 
 proc `$`*(s: TaskId): string =
