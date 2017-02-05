@@ -24,7 +24,6 @@ type
     event_stream: ref EventPipe
     port: int32
     alive: bool
-    detach_handlers: proc()
 
 proc messageSender(self: ControlServer, e: RawMessageToSend):bool =
   let message = ControlMessage(signature: PROGRAM_SIGNATURE,
@@ -39,7 +38,6 @@ proc messageSender(self: ControlServer, e: RawMessageToSend):bool =
     
 proc stop*(self: ControlServer) =
   self.alive = false
-  self.detach_handlers()
 
 proc newControlServer*(event_stream: ref EventPipe,
                        port: int32): ControlServer =
@@ -55,14 +53,17 @@ proc newControlServer*(event_stream: ref EventPipe,
   result.event_stream = event_stream
   result.port = port
   let self = result
-  let send_handler = proc(e: RawMessageToSend): bool =
+  proc tc_send_handler(e: TaskCanceled): bool =
     self.messageSender(e)
-  let stop_handler = proc(e: ExitApplication): bool =
+  proc tf_send_handler(e: TaskCompleted): bool =
+    self.messageSender(e)
+  proc stop_handler(e: ExitApplication): bool =
     self.stop()
-  result.detach_handlers = proc () =
-    self.event_stream[].detach(send_handler)
     self.event_stream[].detach(stop_handler)
-  result.event_stream[].on_event(send_handler)
+    self.event_stream[].detach(tc_send_handler)
+    self.event_stream[].detach(tf_send_handler)
+  result.event_stream[].on_event(tc_send_handler)
+  result.event_stream[].on_event(tf_send_handler)
   result.event_stream[].on_event(stop_handler)
     
 

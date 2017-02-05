@@ -20,12 +20,10 @@ type
     event_pipe: ref EventPipe
     port: int32
     alive: bool
-    on_shutdown: proc()
 
 proc stop*(self: DataServer) =
   self.alive = false
   debugEcho "Shutting down data server"
-  self.on_shutdown()
 
 proc newDataServer*(pipe: ref EventPipe, port: int32): DataServer =
   new(result)
@@ -37,9 +35,8 @@ proc newDataServer*(pipe: ref EventPipe, port: int32): DataServer =
   result.socket.setSockOpt(OptReuseAddr, true)
   result.socket.setSockOpt(OptReusePort, true)
   let self = result
-  let stop_handler = proc(e: ExitApplication): bool =
+  proc stop_handler(e: ExitApplication): bool =
     self.stop()
-  result.on_shutdown = proc () =
     self.event_pipe[].detach(stop_handler)
   result.event_pipe[].on_event(stop_handler)
 
