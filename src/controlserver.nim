@@ -8,14 +8,15 @@ from net import close, sendTo
 from net import Socket, Port
 from net import OptReuseAddr, OptReusePort, OptBroadcast
 from events.pipe import EventPipe
-from events.netevent import RawMessageRecvd, RawMessageToSend
-from events.systemsignals import ExitApplication
+from events.netevent import RawMessageRecvd
+from events.system import ExitApplication
+from events.internal import CancelTask, TaskCanceled,
+                            TaskCompleted
 from interfaces.messages.control import size, serialize,
   deserialize
 from interfaces.messages.control import ControlMessage
 from interfaces.messages.proto import MAX_DATA_SIZE,
   PROTO_VERSION, PROGRAM_SIGNATURE
-
 
 type
   ControlServer* = ref object

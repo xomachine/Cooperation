@@ -4,7 +4,7 @@ from interfaces.messages.proto import PROGRAM_SIGNATURE,
   PROTO_VERSION
 from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd
-from events.systemsignals import ExitApplication
+from events.system import ExitApplication
 from metaevents import emit, detach, on_event
 from utils.socketstream import newSocketStream
 from net import newSocket, getFd, bindAddr, listen, accept, close

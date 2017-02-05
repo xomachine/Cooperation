@@ -1,7 +1,10 @@
 from metaevents import declareEventPipe
-from netevent import RawMessageRecvd, RawMessageToSend
-from systemsignals import ExitApplication
+from netevent import RawMessageRecvd
+from events.system import ExitApplication
+from internal import TaskCanceled, TaskCompleted, CancelTask
 
 declareEventPipe(EventPipe, RawMessageRecvd,
-                            RawMessageToSend,
-                            ExitApplication)
+                            ExitApplication,
+                            TaskCanceled,
+                            TaskCompleted,
+                            CancelTask)

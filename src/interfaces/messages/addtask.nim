@@ -1,11 +1,17 @@
 from nesm import serializable
-from interfaces.task import Task
+from interfaces.task import Task, TaskId
 
 
 
 serializable:
   type
-    AddTask* = object
-      task*: Task
-  
-  
+    AddTask* = tuple
+      task: Task
+
+type
+  TaskCompleted* = tuple
+    id: TaskId
+  TaskCanceled* = tuple
+    id: TaskId
+  CancelTask* = tuple
+    id: TaskId

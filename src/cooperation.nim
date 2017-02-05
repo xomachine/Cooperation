@@ -2,7 +2,7 @@ from controlserver import newControlServer, listen, stop
 from dataserver import newDataServer, listen, stop
 from dispatcher import initModules
 from events.pipe import EventPipe
-from events.systemsignals import ExitApplication
+from events.system import ExitApplication
 from interfaces.queue import Queue
 from metaevents import emit
 from coro import run

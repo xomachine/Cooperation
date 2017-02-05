@@ -11,6 +11,7 @@ from interfaces.messages.addtask import deserialize
 from interfaces.queue import Queue, append
 from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd
+from events.system import ExitApplication
 from metaevents import on_event, detach
 from modules.module import Module
 from modules.module import prepare, init
