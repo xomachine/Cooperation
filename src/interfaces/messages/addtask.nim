@@ -7,11 +7,3 @@ serializable:
   type
     AddTask* = tuple
       task: Task
-
-type
-  TaskCompleted* = tuple
-    id: TaskId
-  TaskCanceled* = tuple
-    id: TaskId
-  CancelTask* = tuple
-    id: TaskId
