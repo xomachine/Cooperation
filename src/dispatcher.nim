@@ -6,8 +6,8 @@ from coro import start, suspend, wait
 from streams import newStringStream
 from interfaces.task import Task
 from interfaces.messages.data import MessageKind
-from interfaces.messages.addtask import AddTask
-from interfaces.messages.addtask import deserialize
+from interfaces.messages.addtask import AddTask, TaskAdded
+from interfaces.messages.addtask import deserialize, serialize
 from interfaces.queue import Queue, append
 from events.pipe import EventPipe
 from events.netevent import RawMessageRecvd
@@ -31,6 +31,8 @@ proc addTask(self: ModulesHandler, e: RawMessageRecvd): bool =
   if task.handler in self.modules:
     let prepared = self.modules[task.handler].prepare(task)
     self.queue[].append(prepared)
+    let responce = TaskAdded(id: task.id).serialize()
+    e.answer(responce)
     # Emit an event or directly add task to the queue
 
 proc initModules*(ep: ref EventPipe, queue: ref Queue,

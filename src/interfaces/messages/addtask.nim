@@ -7,3 +7,5 @@ serializable:
   type
     AddTask* = tuple
       task: Task
+    TaskAdded* = object
+      id*: TaskId
