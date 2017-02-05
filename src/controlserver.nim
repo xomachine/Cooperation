@@ -1,10 +1,11 @@
 from coro import suspend, start
+from typetraits import name
 from metaevents import emit, on_event, detach
 from nativesockets import AF_INET, SOCK_DGRAM, IPPROTO_UDP
 from nativesockets import setBlocking, select
 from net import newSocket, recvFrom, setSockOpt, getFd,
   bindAddr
-from net import close, sendTo
+from net import close, sendTo, IPv4_broadcast, `$`
 from net import Socket, Port
 from net import OptReuseAddr, OptReusePort, OptBroadcast
 from events.pipe import EventPipe
@@ -14,7 +15,8 @@ from events.internal import CancelTask, TaskCanceled,
                             TaskCompleted
 from interfaces.messages.control import size, serialize,
   deserialize
-from interfaces.messages.control import ControlMessage
+from interfaces.messages.control import ControlMessage,
+                                        MessageType
 from interfaces.messages.proto import MAX_DATA_SIZE,
   PROTO_VERSION, PROGRAM_SIGNATURE
 
@@ -25,16 +27,23 @@ type
     port: int32
     alive: bool
 
-proc messageSender(self: ControlServer, e: RawMessageToSend):bool =
-  let message = ControlMessage(signature: PROGRAM_SIGNATURE,
+proc messageSender[T](self: ControlServer, e: T): bool =
+  let msgkind =
+    case name(T)
+    of "TaskCompleted": MessageType.taskCompleted.uint8
+    of "TaskCanceled": MessageType.taskCanceled.uint8
+    else: 0
+  var message = ControlMessage(signature: PROGRAM_SIGNATURE,
     version: PROTO_VERSION,
-    kind: e.id,
-    data: cast[array[MAX_DATA_SIZE, char]](e.data))
-  var msgdata = message.serialize()
-  0 < self.socket.sendTo(e.target,
-    Port(self.port),
-    msgdata[0].addr,
-    msgdata.len)
+    kind: msgkind)
+  case name(T)
+  of "TaskCompleted", "TaskCanceled":
+    message.id = e.id
+  else:
+    discard
+  let msgdata = message.serialize()
+  0 < self.socket.sendTo($IPv4_broadcast(), Port(self.port),
+                         msgdata)
     
 proc stop*(self: ControlServer) =
   self.alive = false
@@ -70,10 +79,12 @@ proc newControlServer*(event_stream: ref EventPipe,
 proc dispatcher(self: ControlServer, address: string, data: string) =
   let msg = ControlMessage.deserialize(data)
   if msg.signature == PROGRAM_SIGNATURE and msg.version == PROTO_VERSION:
-    let msg_event = RawMessageRecvd(sender: address,
-      id: msg.kind,
-      data: cast[string](@(msg.data)))
-    self.event_stream.emit(msg_event)
+    case msg.kind
+    of MessageType.cancelTask.uint8:
+      let msg_event = CancelTask(id: msg.id)
+      self.event_stream.emit(msg_event)
+    else:
+      discard
 
 proc listen*(self: ControlServer) =
   self.socket.bindAddr(Port(self.port))
